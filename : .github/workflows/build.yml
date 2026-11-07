@@ -11,6 +11,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Extract project zip
+        run: unzip -o renji-project.zip -d .
+
       - uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
@@ -21,9 +24,11 @@ jobs:
           gradle-version: '8.7'
 
       - name: Decode keystore
+        working-directory: renji
         run: echo "${{ secrets.RENJI_KEYSTORE_B64 }}" | base64 -d > app/renji.keystore
 
       - name: Build release APK
+        working-directory: renji
         env:
           RENJI_KEYSTORE: renji.keystore
           RENJI_KEYSTORE_PASS: ${{ secrets.RENJI_KEYSTORE_PASS }}
@@ -34,4 +39,4 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: renji-release
-          path: app/build/outputs/apk/release/*.apk
+          path: renji/app/build/outputs/apk/release/*.apk
